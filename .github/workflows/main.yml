@@ -2,12 +2,27 @@ name: Package Chrome Extension
 
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
+  create_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create tag
+        run: |
+          TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   package:
+    needs: create_tag
     runs-on: ubuntu-latest
 
     steps:
@@ -17,7 +32,7 @@ jobs:
       - name: Create ZIP archive
         run: |
           mkdir -p packaged_extension
-          cp -r extension/* packaged_extension/
+          cp -r * packaged_extension/
           zip -r x-solana-token-info.zip packaged_extension -x '*.git*' '*.github*' 'node_modules/*'
 
       - name: Upload ZIP as artifact
@@ -26,11 +41,31 @@ jobs:
           name: x-solana-token-info
           path: x-solana-token-info.zip
 
+  release:
+    needs: package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download ZIP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: x-solana-token-info
+          path: .
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          TAG_NAME=$(git describe --tags --abbrev=0)
+          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: x-solana-token-info.zip
+          tag_name: ${{ env.tag_name }}
+          name: "Release ${{ env.tag_name }}"
           body: "Automated release with the packaged Chrome extension."
-          name: "Release ${{ github.ref_name }}"
           draft: false
-          prerelease: false          
+          prerelease: false
