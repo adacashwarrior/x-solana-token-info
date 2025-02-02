@@ -17,8 +17,8 @@ jobs:
       - name: Create ZIP archive
         run: |
           mkdir -p packaged_extension
-          cp -r extension packaged_extension/
-          zip -r chrome-extension.zip packaged_extension -x '*.git*' '*.github*' 'node_modules/*'
+          cp -r extension/* packaged_extension/
+          zip -r x-solana-token-info.zip packaged_extension -x '*.git*' '*.github*' 'node_modules/*'
 
       - name: Upload ZIP as artifact
         uses: actions/upload-artifact@v4
