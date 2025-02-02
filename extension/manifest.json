@@ -1,0 +1,27 @@
+// manifest.json
+{
+  "manifest_version": 3,
+  "name": "Solana Token Info on X",
+  "version": "1.0",
+  "description": "Displays symbol, price, and market cap of Solana tokens inline on X (Twitter).",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.dexscreener.com/", "https://birdeye.so/"] ,
+  "content_scripts": [
+    {
+      "matches": ["https://twitter.com/*", "https://x.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon_16x16.png",
+      "48": "icon_48x48.png",
+      "128": "icon_128x128.png"
+    }
+  }
+}

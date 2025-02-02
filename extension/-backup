@@ -1,0 +1,15 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+	sshCommand = ssh -i C:/Users/windo/.ssh/id_rsa-adacashwarrior-github -o IdentitiesOnly=yes
+
+[remote "origin"]
+	url = git@github.com:adacashwarrior/x-solana-token-info.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[user]
+	name = pawsofada
+	email = adacashwarrior@gmail.com
