@@ -12,20 +12,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+        with:
+          persist-credentials: false  # Disable default token handling
+  
       - name: Configure Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-
-      - name: Create tag
+          git config --global credential.helper store
+  
+      - name: Authenticate with GitHub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
-
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+  
+      - name: Create tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+            git tag "$TAG_NAME"
+            git push origin "$TAG_NAME"
+  
   package:
     needs: create_tag
     runs-on: ubuntu-latest
