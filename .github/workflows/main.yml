@@ -7,36 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  create_tag:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false  # Prevent default token handling
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-
-      - name: Authenticate with GitHub
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
-
-      - name: Create tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
-          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
-
   package:
-    needs: create_tag
     runs-on: ubuntu-latest
 
     steps:
@@ -55,28 +26,10 @@ jobs:
           name: x-solana-token-info
           path: x-solana-token-info.zip
 
-  release:
-    needs: package
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download ZIP artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: x-solana-token-info
-          path: .
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: x-solana-token-info.zip
-          tag_name: ${{ env.tag_name }}
           name: "Release ${{ env.tag_name }}"
           body: "Automated release with the packaged Chrome extension."
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
