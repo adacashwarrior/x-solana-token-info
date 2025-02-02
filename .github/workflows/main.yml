@@ -27,7 +27,7 @@ jobs:
           path: x-solana-token-info.zip
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: x-solana-token-info.zip
           name: "Release ${{ env.tag_name }}"
