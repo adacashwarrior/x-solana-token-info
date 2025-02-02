@@ -13,28 +13,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false  # Disable default token handling
-  
+          persist-credentials: false  # Prevent default token handling
+
       - name: Configure Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git config --global credential.helper store
-  
+
       - name: Authenticate with GitHub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
-  
+
       - name: Create tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
-            git tag "$TAG_NAME"
-            git push origin "$TAG_NAME"
-  
+        run: |
+          TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
+
   package:
     needs: create_tag
     runs-on: ubuntu-latest
@@ -68,12 +68,6 @@ jobs:
         with:
           name: x-solana-token-info
           path: .
-
-      - name: Get latest tag
-        id: get_tag
-        run: |
-          TAG_NAME=$(git describe --tags --abbrev=0)
-          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
