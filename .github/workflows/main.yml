@@ -30,7 +30,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: x-solana-token-info.zip
-          tag_name: ${{ github.ref_name }}
           body: "Automated release with the packaged Chrome extension."
           name: "Release ${{ github.ref_name }}"
           draft: false
