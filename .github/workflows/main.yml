@@ -13,13 +13,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
       - name: Create tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
           git tag "$TAG_NAME"
           git push origin "$TAG_NAME"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   package:
     needs: create_tag
@@ -46,6 +51,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download ZIP artifact
         uses: actions/download-artifact@v4
         with:
@@ -57,8 +65,6 @@ jobs:
         run: |
           TAG_NAME=$(git describe --tags --abbrev=0)
           echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -69,3 +75,5 @@ jobs:
           body: "Automated release with the packaged Chrome extension."
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
