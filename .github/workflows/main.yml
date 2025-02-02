@@ -26,8 +26,7 @@ jobs:
           name: x-solana-token-info
           path: x-solana-token-info.zip
 
-      - name: (Optional) Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: x-solana-token-info.zip
