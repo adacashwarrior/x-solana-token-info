@@ -1,12 +1,8 @@
 let tokenCache = {};
-let blacklist = new Set();
-let marketCapHistory = {};
 
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.get(["tokenCache", "blacklist", "marketCapHistory"], (data) => {
+    chrome.storage.local.get(["tokenCache"], (data) => {
         tokenCache = data.tokenCache || {};
-        blacklist = new Set(data.blacklist || []);
-        marketCapHistory = data.marketCapHistory || {};
     });
 });
 
@@ -30,11 +26,6 @@ function formatTokenAge(unixTimestamp) {
 }
 
 function fetchTokenData(address, sendResponse) {
-    /*if (blacklist.has(address)) {
-        sendResponse({ error: "Not a token address: " + address });
-        return;
-    }*/
-
     if (address.length < 10) {
         fetch(`https://api.dexscreener.com/latest/dex/search?q=${address}&chainId=solana`)
             .then(response => response.json())
@@ -42,6 +33,7 @@ function fetchTokenData(address, sendResponse) {
                 try {
                     if (data.pairs && data.pairs.length > 0) {
                         fetchTokenData(data.pairs[0].baseToken.address, sendResponse);
+                        return;
                     }
                 } catch(error) {
                     sendResponse({ error: "Not a token address: " + address + "\n" + error.message});
@@ -50,32 +42,54 @@ function fetchTokenData(address, sendResponse) {
         return;
     }
 
+    try {
+        if (chrome.storage.local.has('tokenCache')) {
+            if (chrome.storage.local.get('tokenCache').has(address)) {
+                let tokenData = chrome.storage.local.get('tokenCache')[address];
+                let fetchAt = tokenData.fetchAt;
+                let diff = new Date() - fetchAt;
+                if (diff / 1000 <= 30) {
+                    sendResponse(tokenData);
+                }
+            }
+
+        }
+    } catch (error){}
+
     fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`)
         .then(response => response.json())
         .then(data => {
             try {
                 if (data.pairs && data.pairs.length > 0) {
-                    const token = data.pairs[0];
-                    const newMarketCap = token.fdv ? parseFloat(token.fdv) : null;
-                    let marketCapChange = "";
+                    let token = data.pairs[0];
+                    //if (address.length < 10) {
+                        let idx = 0;
+                        for (let idx = 0; idx < data.pairs.length; idx++) {
+                            //exact match address
+                            if (data.pairs[idx].baseToken.baseToken === address) {
+                                token = data.pairs[idx];
+                                break;
+                            }
+                            //exact match symbol
+                            if (data.pairs[idx].baseToken.symbol === address) {
+                                token = data.pairs[idx];
+                                break;
+                            }
+                        }
+
+                    //}
+
+                    let newMarketCap = token.fdv ? parseFloat(token.fdv) : null;
                     let website = "";
                     let twitter = "";
                     let telegram = "";
 
 
-                    if (marketCapHistory[address] !== undefined && newMarketCap !== null) {
-                        if (newMarketCap > marketCapHistory[address]) {
-                            marketCapChange = "📈";
-                        } else if (newMarketCap < marketCapHistory[address]) {
-                            marketCapChange = "📉";
-                        }
-                    }
-
-                    if (token.info.websites !== undefined && token.info.websites.length > 0) {
+                    if (token.info && Array.isArray(token.info.websites) && token.info.websites.length > 0) {
                         website = token.info.websites[0].url;
                     }
 
-                    if (token.info.socials !== undefined && token.info.socials.length > 0) {
+                    if (token.info && Array.isArray(token.info.socials) && token.info.socials.length > 0) {
                         token.info.socials.forEach((element) => {
                             if (element.type === "twitter") {
                                 twitter = element.url;
@@ -86,13 +100,10 @@ function fetchTokenData(address, sendResponse) {
                         })
                     }
 
-                    marketCapHistory[address] = newMarketCap;
-                    chrome.storage.local.set({ "marketCapHistory": marketCapHistory });
-
                     const tokenData = {
                         symbol: token.baseToken.symbol,
                         price: parseFloat(token.priceUsd).toFixed(9),
-                        marketCap: newMarketCap ? newMarketCap.toLocaleString() + " " + marketCapChange : 'N/A',
+                        marketCap: newMarketCap ? newMarketCap.toLocaleString() : 'N/A',
                         chartUrl: `https://dexscreener.com/solana/${address}`,
                         swapUrl: `https://jup.ag/swap/SOL-${address}`,
                         change: token.priceChange.m5 > 0 ? '⬆️' : '⬇️',
@@ -101,14 +112,13 @@ function fetchTokenData(address, sendResponse) {
                         twitter: twitter,
                         telegram: telegram,
                         volume: token.volume,
-                        age: formatTokenAge(token.pairCreatedAt)
+                        age: formatTokenAge(token.pairCreatedAt),
+                        fetchAt: new Date()
                     };
                     tokenCache[address] = tokenData;
                     chrome.storage.local.set({ "tokenCache": tokenCache });
                     sendResponse(tokenData);
                 } else {
-                    blacklist.add(address);
-                    chrome.storage.local.set({ "blacklist": [...blacklist] });
                     sendResponse({ error: "Not a token address: " + address });
                 }
             }catch(error) {

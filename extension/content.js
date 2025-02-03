@@ -1,7 +1,7 @@
 let configRegexes = [
     /(?:CA[^a-zA-Z0-9]*)([1-9A-HJ-NP-Za-km-z]{32,44})\b(?!\w)/g,
     /([1-9A-HJ-NP-Za-km-z]{32,44}pump)/g,
-    /\$(\w{2,10})/g
+    /\$([A-Za-z][A-Za-z0-9]{1,9})/g
 ];
 
 
@@ -23,9 +23,15 @@ let tableBG = 'border-radius: 20px; background: linear-gradient(135deg, #0a0a0a,
 
 function detectSolanaContracts() {
     const tweetElements = document.querySelectorAll("article div[lang]");
+    let checked = [];
     tweetElements.forEach(tweet => {
         try {
             let found = false;
+
+            if (tweet.parentElement.hasAttribute('x-solana-token-info')) {
+                return;
+            }
+
             configRegexes.forEach(regex => {
                 if (found) {
                     return;
@@ -33,13 +39,30 @@ function detectSolanaContracts() {
                 let match;
                 while ((match = regex.exec(tweet.innerText)) !== null) {
                     const address = match[1];
-                    injectTokenInfo(tweet, address);
+                    //injectTokenInfo(tweet, address);
+                    checked.push({
+                        't' : tweet,
+                        'a' : address
+                    });
                     found = true;
                     break;
                 }
             });
         } catch(error) {
         }
+    });
+
+    checked.forEach( item => {
+        let tweet = item['t'];
+        let address = item['a'];
+
+        /*if (tweet.parentElement.hasAttribute('x-solana-token-info')) {
+            return;
+        }*/
+
+        injectTokenInfo(tweet, address);
+
+        tweet.parentElement.setAttribute('x-solana-token-info', 'true');
     });
 }
 
