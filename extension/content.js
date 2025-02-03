@@ -117,9 +117,10 @@ function fetchTokenInfo(address, element) {
                 element.innerHTML = `
                 <thead>
                     <tr><th colspan="2" style="text-align:left"><span style="color: #00FFA3;">S</span><span style="color: #03E1FF;">O</span><span style="color: #DC1FFF;">L</span><span style="color: #00FFA3;">A</span><span style="color: #03E1FF;">N</span><span style="color: #DC1FFF;">A</span> TOKEN INFO</th></tr>
-                    <tr><th colspan="2">Token: ${address}</th></tr>
+                    <tr><th>TOKEN</th><td>${address}</td></tr>
                 </thead>
                 <tbody style="background:url('data:image/png;base64,${icon}') no-repeat 330px 10px;background-size: 48px">
+                    <tr><th>Chain</th><td>${response.chainId}</td></tr>
                     <tr><th>Symbol</th><td>$${response.symbol}</td></tr>
                     <tr><th>MCAP</th><td>${response.marketCap}</td></tr>
                     <tr><th>Price</th><td>${response.price} (m5: ${response.change} ${response.priceChange.m5}%)</td></tr>

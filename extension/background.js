@@ -113,6 +113,7 @@ function fetchTokenData(address, sendResponse) {
                         telegram: telegram,
                         volume: token.volume,
                         age: formatTokenAge(token.pairCreatedAt),
+                        chainId: token.chainId,
                         fetchAt: new Date()
                     };
                     tokenCache[address] = tokenData;
