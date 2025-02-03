@@ -99,7 +99,7 @@ function fetchTokenInfo(address, element) {
                 <tbody style="background:url('data:image/png;base64,${icon}') no-repeat 330px 10px;background-size: 48px">
                     <tr><th>Symbol</th><td>$${response.symbol}</td></tr>
                     <tr><th>MCAP</th><td>${response.marketCap}</td></tr>
-                    <tr><th>Price</th><td>${response.price} (m5: ${response.change})</td></tr>
+                    <tr><th>Price</th><td>${response.price} (m5: ${response.change} ${response.priceChange.m5}%)</td></tr>
                     <tr><th>Age</th><td>${response.age}</td></tr>
                     <tr><th>Vol</th><td>m5: ${response.volume.m5}, h1: ${response.volume.h1}</td></tr>
                     <tr><th>Dex/Buy</th><td><a style="color:rgb(29, 155, 240)" href="${response.chartUrl}" target="_blank">[Chart]</a>&nbsp;<a style="color:rgb(29, 155, 240)" href="${response.swapUrl}" target="_blank">[Buy]</td></tr>

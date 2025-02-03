@@ -96,6 +96,7 @@ function fetchTokenData(address, sendResponse) {
                         chartUrl: `https://dexscreener.com/solana/${address}`,
                         swapUrl: `https://jup.ag/swap/SOL-${address}`,
                         change: token.priceChange.m5 > 0 ? '⬆️' : '⬇️',
+                        priceChange: token.priceChange,
                         website: website,
                         twitter: twitter,
                         telegram: telegram,
