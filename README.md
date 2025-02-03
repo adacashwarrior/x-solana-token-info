@@ -2,6 +2,8 @@
 
 A lightweight Chrome extension that enhances your experience on X (formerly Twitter) by automatically detecting Solana token contract addresses and displaying real-time price and market cap information inline. Always stay updated with the latest release by downloading the packaged extension (`x-solana-token-info.zip`). If using the source code, load the `extension/` subfolder in Developer Mode.
 
+![Screenshot](assets/screenshots/screenshot3.png)
+
 ## Features
 - Detects Solana contract addresses in posts, especially those ending in `pump` or appearing as `CA: <address>`.
 - Fetches and displays live token price and market cap data.
@@ -30,4 +32,5 @@ Support the project by sending some SOL to: **7MaVRLbjDKcmT4mARt23qhH8uRnqP64anY
 Have ideas for new features? Send them to me on X: [x.com/pawsofada](https://x.com/pawsofada)
 
 ## License
-This project is licensed under the MIT License
+This project is licensed under the MIT License.
+
