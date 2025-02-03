@@ -2,8 +2,8 @@ name: Package Chrome Extension
 
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -25,12 +25,4 @@ jobs:
         with:
           name: x-solana-token-info
           path: x-solana-token-info.zip
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: x-solana-token-info.zip
-          body: "Automated release with the packaged Chrome extension."
-          name: "Release ${{ github.ref_name }}"
-          draft: false
-          prerelease: false          
+          
