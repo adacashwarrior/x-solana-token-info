@@ -30,8 +30,23 @@ function formatTokenAge(unixTimestamp) {
 }
 
 function fetchTokenData(address, sendResponse) {
-    if (blacklist.has(address)) {
-        sendResponse({ error: "Not a token address" });
+    /*if (blacklist.has(address)) {
+        sendResponse({ error: "Not a token address: " + address });
+        return;
+    }*/
+
+    if (address.length < 10) {
+        fetch(`https://api.dexscreener.com/latest/dex/search?q=${address}&chainId=solana`)
+            .then(response => response.json())
+            .then(data => {
+                try {
+                    if (data.pairs && data.pairs.length > 0) {
+                        fetchTokenData(data.pairs[0].baseToken.address, sendResponse);
+                    }
+                } catch(error) {
+                    sendResponse({ error: "Not a token address: " + address + "\n" + error.message});
+                }
+            })
         return;
     }
 
@@ -93,7 +108,7 @@ function fetchTokenData(address, sendResponse) {
                 } else {
                     blacklist.add(address);
                     chrome.storage.local.set({ "blacklist": [...blacklist] });
-                    sendResponse({ error: "Not a token address:" + address });
+                    sendResponse({ error: "Not a token address: " + address });
                 }
             }catch(error) {
                 sendResponse({error: error.message});
@@ -109,8 +124,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
+/*
 setInterval(() => {
     Object.keys(tokenCache).forEach(address => {
         fetchTokenData(address, () => {});
     });
 }, 60000);
+/**
+ */

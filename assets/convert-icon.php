@@ -33,4 +33,4 @@ function resizeWebP($inputFile, $sizes = [16, 48, 128], $outputFormat = 'png') {
 // Run conversion
 resizeWebP("icon-src5.webp");
 
-echo base64_encode(file_get_contents('../extension/icon_16x16.png'));
+echo base64_encode(file_get_contents('../extension/icon_48x48.png'));
