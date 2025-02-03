@@ -12,17 +12,34 @@ jobs:
 
     steps:
       - name: Checkout repository
+        id: checkout
         uses: actions/checkout@v4
 
       - name: Create ZIP archive
+        id: zip_create
         run: |
           mkdir -p packaged_extension
           cp -r extension/* packaged_extension/
           zip -r x-solana-token-info.zip packaged_extension -x '*.git*' '*.github*' 'node_modules/*'
 
       - name: Upload ZIP as artifact
+        id: zip_upload
         uses: actions/upload-artifact@v4
         with:
           name: x-solana-token-info
           path: x-solana-token-info.zip
-          
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          fetch_all_tags: true
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+          artifacts: ./x-solana-token-info.zip
