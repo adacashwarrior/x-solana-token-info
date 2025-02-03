@@ -19,7 +19,7 @@ let icon = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAA7EAAAOxAGV
     't3PybpubfvROTJYhWDavvsyXNj5BywRmjaMnjiaOPEDDV5xpPM/+Ww6kUTJ5wQdC8JAgP6R6EBCM1tuRRF2UVQyhsvCEUtFKWTjxlrg9wVC9cI7u/3kSPxphqJAQsDs7LP/BYzzwyD3MHZijPduiPdOeKNFenGH/j96FiAEMFy8/w2MbH8dlQzoorbIiryq+OfMcK3eeZ+7IIsF7NL2893gfEkrWNEv0hvM+IBKF80EpC09ZhgmNJwIzywcYrK2xfv4Cxit88iv0vvEqrbcehcpz4tUr3P/Be1k4up/RuETFEhI4qBoQ' +
     'Q/fAHhZO3sra2XNo5Xnx9S/xW0vneHj+37JP5jg7eomVYy/y/l9/NFXgmLxVCnHqAuY10UDRC857BQlYJJZq7xENGKNkmZA1LIUz7D15kub8AoNrqzQzx8L+eW7qNDl47CBLjz6IszXsGcoKqkrxPq1GE0TvveMYrt3kxmsXsUHpzFacv/UZdo4uceL2Q9x37JciO+5DzIFdmxudrFmZLGOIzVw84BNRpKqRmRAhyxzNdo5qwDpD1jzInuOH6c122Hdonr3755idyWnlDgG8DzSDUlUeXylVpSmWA2oMNnPsu/0o++88' +
     'wcK+GQ4fW2Rp/wzNlpuwn3X/EwL4KhCS8DoZJydbxbihmcS/r7E1jnTWGRrNDNTgGo5WpyJ4j8sdM/Nd5vd06XQy8obD2rRrEol9jneUVaCqssly2rhAmUc+s9lpMr+vR7fXwjo3qbRRjjBBw0mTyXQfoNSzcZTXkRZoSNzrigHnDFlmUTU468nVghqMUfKmo91t0ptp0s6zuLlPo3dczggus7RaDYIaMAaxhrKIgmEMnV7O7FyTvGkRCZMG0iec9wnSp3A53S9rmG7w1RD3xOqn+yUxBmuVPLc4JwTvUPUTwfJmRiN3' +    'tHKHtSAS0nwdDaHE8xrEwQgLNrNUZRyQnBOa7QbdboNGFj1X04Y+hAk7GNhdyDR1E2GyloqeEVyoKYt6TYpgrSEThwuaNuQW6wwuc7jc4myagSFOTOmRgRifIGJwVmg2BeMMea6UpQeEzBny3EYDuLhYCcFTVT4KGyTmTFqrTlarqamLbU+ISoSA88QEMUmAuBczZIakWFz0WWuwmU17rnpjomlBV+fV1N1iITMGYw3eRY+igrWCywxiY8j4SaWFKsSF6qS5TE2bThaoMn3oQyNKOV8/4pAy20626zHmVYiPINj0SEeKyQoPKpPjNWs8fRQgksYignFxy1hvPoNA6af9DBOWYdoi7F4thQlXmjaVCRg84LxGv5uEPj49VJHuHm9oDKQbS3y0gnpvGgKJYCWhRQqtyUMJ06dLkChkZAJlyvMoE8yvFxkB0pI7NXJpBogLv/T4jRH+FWVYiGK1o1WLAAAAAElFTkSuQmCC';
-let tableBG = 'border-radius: 20px; background: linear-gradient(135deg, #0a0a0a, #101820, #1a2b38); box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.8);';
+let tableBG = 'border-radius: 20px; background: linear-gradient(135deg, #0a0a0a, #101820, #1a2b38); box-shadow: 10px 4px 10px rgba(50, 0, 0, 0.8);';
 
 function detectSolanaContracts() {
     const tweetElements = document.querySelectorAll("article div[lang]");
@@ -84,6 +84,7 @@ function injectTokenInfo(tweetElement, address) {
         infoContainer.style.borderSpacing="0";
         infoContainer.style.minWidth = "440px";
         infoContainer.style.textAlign = "left";
+        infoContainer.style.margin = "10px";
 
         tweetElement.prepend(infoContainer);
         fetchTokenInfo(address, infoContainer);
