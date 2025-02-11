@@ -1,8 +1,10 @@
 let tokenCache = {};
+let baseTokenCache = {};
 
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.get(["tokenCache"], (data) => {
+    chrome.storage.local.get(["tokenCache", "baseTokenCache"], (data) => {
         tokenCache = data.tokenCache || {};
+        baseTokenCache = data.baseTokenCache || {};
     });
 });
 
@@ -25,8 +27,85 @@ function formatTokenAge(unixTimestamp) {
     }
 }
 
-function fetchTokenData(address, sendResponse) {
+async function updateBaseTokenInfos() {
+    const response = await fetch(
+        "https://min-api.cryptocompare.com/data/top/mktcapfull?tsym=USD&limit=100"
+    );
+    const data = await response.json();
+    baseTokenCache = data.Data;
+    if (chrome.storage.local) {
+        chrome.storage.local.set({"baseTokenCache": baseTokenCache});
+    }
+}
+
+function getBaseTokenInfo(matchedToken) {
+    try {
+        if (matchedToken.charAt(0) == '$') {
+            matchedToken = matchedToken.substring(1).toLowerCase();
+        }
+
+        if (!baseTokenCache) {
+            return false;
+        }
+       
+        let token = false;
+        for(let i = 0; i < baseTokenCache.length; i++) {
+            let item = baseTokenCache[i];
+            if (item?.CoinInfo?.Internal?.toLowerCase() === matchedToken.toLowerCase()) {
+                token = item;
+                break;
+            }
+        }
+        
+        return token
+            ? {
+                priceUSDC: token.RAW.USD.PRICE,
+                marketCap: token.RAW.USD.MKTCAP,
+                symbol: token.RAW.USD.FROMSYMBOL,
+                id: token.CoinInfo.Internal,
+                priceChange: token.RAW.USD.CHANGEPCTHOUR,
+                priceChangeHour: token.RAW.USD.CHANGEPCTHOUR,
+                volume: {h1: token.RAW.USD.VOLUMEHOUR, m5: Math.floor(token.RAW.USD.VOLUMEHOUR / 12)}
+            }
+            : false;
+    } catch (error) {
+        console.error("Error fetching token data:", error);
+        return false;
+    }
+}
+
+// Example Usage:
+//getTokenInfo("$SOL").then(console.log); 
+// Output: { priceUSDC: 98.5, marketCap: 41000000000, symbol: "SOL" } OR false
+
+
+async function fetchTokenData(address, sendResponse) {
+    updateBaseTokenInfos();
+
     if (address.length < 10) {
+        let baseToken = getBaseTokenInfo(address);
+        if (baseToken) {
+            const tokenData = {
+                symbol: baseToken.symbol,
+                price: parseFloat(baseToken.priceUSDC).toFixed(9),
+                marketCap: baseToken.marketCap,
+                chartUrl: `https://coinmarketcap.com/currencies/${baseToken.id}/`,
+                swapUrl: `https://binance.com`,
+                change: baseToken.priceChange > 0 ? '⬆️' : '⬇️',
+                priceChange: baseToken.priceChange,
+                priceChangeHour: baseToken.priceChangeHour,
+                website: null,
+                twitter: null,
+                telegram: null,
+                volume: baseToken.volume,
+                age: '-',
+                chainId: baseToken.id,
+                fetchAt: false
+            };
+            sendResponse(tokenData);
+            return;
+        }
+
         fetch(`https://api.dexscreener.com/latest/dex/search?q=${address}&chainId=solana`)
             .then(response => response.json())
             .then(data => {
@@ -106,8 +185,9 @@ function fetchTokenData(address, sendResponse) {
                         marketCap: newMarketCap ? newMarketCap.toLocaleString() : 'N/A',
                         chartUrl: `https://dexscreener.com/solana/${address}`,
                         swapUrl: `https://jup.ag/swap/SOL-${address}`,
-                        change: token.priceChange.m5 > 0 ? '⬆️' : '⬇️',
+                        change: token.priceChange.m5 ? (token.priceChange.m5 > 0 ? '⬆️' : '⬇️') : 0,
                         priceChange: token.priceChange,
+                        priceChangeHour: 0,
                         website: website,
                         twitter: twitter,
                         telegram: telegram,
@@ -135,6 +215,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 });
+
+setTimeout(updateBaseTokenInfos, 3000);
+setInterval(updateBaseTokenInfos, 1000*60*5);
 
 /*
 setInterval(() => {

@@ -115,6 +115,13 @@ function fetchTokenInfo(address, element) {
                     socials = "none";
                 }
 
+                let priceChangeString = '';
+                if (response?.priceChange?.m5) {
+                    priceChangeString = `<tr><th>Price</th><td>${response.price} (m5: ${response.change} ${response.priceChange.m5}%)</td></tr>`;
+                } else if(response?.priceChangeHour) {
+                    priceChangeString = `<tr><th>Price</th><td>${response.price} (hour: ${response.priceChangeHour}%)</td></tr>`;
+                }
+
                 element.innerHTML = `
                 <thead>
                     <tr><th colspan="2" style="text-align:left"><span style="color: #00FFA3;">S</span><span style="color: #03E1FF;">O</span><span style="color: #DC1FFF;">L</span><span style="color: #00FFA3;">A</span><span style="color: #03E1FF;">N</span><span style="color: #DC1FFF;">A</span> TOKEN INFO</th></tr>
@@ -124,7 +131,7 @@ function fetchTokenInfo(address, element) {
                     <tr><th>Chain</th><td>${response.chainId}</td></tr>
                     <tr><th>Symbol</th><td>$${response.symbol}</td></tr>
                     <tr><th>MCAP</th><td>${response.marketCap}</td></tr>
-                    <tr><th>Price</th><td>${response.price} (m5: ${response.change} ${response.priceChange.m5}%)</td></tr>
+                    ${priceChangeString}
                     <tr><th>Age</th><td>${response.age}</td></tr>
                     <tr><th>Vol</th><td>m5: ${response.volume.m5}, h1: ${response.volume.h1}</td></tr>
                     <tr><th>Dex/Buy</th><td><a style="color:rgb(29, 155, 240)" href="${response.chartUrl}" target="_blank">[Chart]</a>&nbsp;<a style="color:rgb(29, 155, 240)" href="${response.swapUrl}" target="_blank">[Buy]</td></tr>
